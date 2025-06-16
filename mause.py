@@ -3,6 +3,7 @@ from tkinter import messagebox, simpledialog
 import random
 import json
 import os
+import time
 from datetime import datetime
 
 
@@ -396,7 +397,7 @@ class Arkanoid:
 
     def check_collisions(self):
         # Получаем текущее время в миллисекундах
-        current_time = self.master.after_idle(lambda: None)  # Просто для получения времени
+         current_time = time.time() * 1000  # Просто для получения времени
         
         # Коллизия с платформой
         paddle_coords = self.canvas.coords(self.paddle)
@@ -410,14 +411,19 @@ class Arkanoid:
             
             # Проверяем, чтобы мяч не залипал в платформе
             if current_time - self.last_paddle_collision_time > 100:  # 100 мс задержки
-                self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантируем отскок вверх
-                self.last_paddle_collision_time = current_time
+                hit_pos = (self.ball_x - (self.paddle_x + self.paddle_width/2)) / (self.paddle_width/2)
                 
                 # Добавляем небольшой случайный угол отскока
-                self.ball_x_speed += random.uniform(-1, 1)
-                # Ограничиваем максимальную скорость по X
-                self.ball_x_speed = max(-5, min(5, self.ball_x_speed))
-
+                 self.ball_x_speed = hit_pos * 5  # Максимальный угол отскока
+                self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантированный отскок вверх
+                max_speed = 5
+                speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.5
+                if speed > max_speed:
+                    factor = max_speed / speed
+                    self.ball_x_speed *= factor
+                    self.ball_y_speed *= factor
+                
+                self.last_paddle_collision_time = current_time
         # Коллизия с блоками
         for block in self.blocks[:]:
             block_coords = (
