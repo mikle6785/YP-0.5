@@ -242,7 +242,7 @@ class Arkanoid:
         self.ball_size = 10
         self.ball_x = self.canvas_width / 2
         self.ball_y = self.canvas_height / 2
-        self.ball_x_speed = 3
+        self.ball_x_speed = 3 * (1 if random.random() > 0.5 else -1)
         self.ball_y_speed = -3
         self.ball = self.canvas.create_oval(
             self.ball_x - self.ball_size, self.ball_y - self.ball_size,
@@ -396,26 +396,27 @@ class Arkanoid:
         )
 
     def check_collisions(self):
-        # Получаем текущее время в миллисекундах
-         current_time = time.time() * 1000  # Просто для получения времени
+        current_time = time.time() * 1000  # Текущее время в миллисекундах
         
         # Коллизия с платформой
         paddle_coords = self.canvas.coords(self.paddle)
         ball_coords = self.canvas.coords(self.ball)
         
-        # Улучшенная проверка коллизии с платформой
         if (ball_coords[3] >= paddle_coords[1] and 
             ball_coords[1] <= paddle_coords[3] and 
             ball_coords[2] >= paddle_coords[0] and 
             ball_coords[0] <= paddle_coords[2]):
             
-            # Проверяем, чтобы мяч не залипал в платформе
+            # Проверяем временной интервал с момента последнего столкновения
             if current_time - self.last_paddle_collision_time > 100:  # 100 мс задержки
+                # Вычисляем относительное положение удара по платформе
                 hit_pos = (self.ball_x - (self.paddle_x + self.paddle_width/2)) / (self.paddle_width/2)
                 
-                # Добавляем небольшой случайный угол отскока
-                 self.ball_x_speed = hit_pos * 5  # Максимальный угол отскока
+                # Меняем направление мяча с учетом места удара
+                self.ball_x_speed = hit_pos * 5  # Максимальный угол отскока
                 self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантированный отскок вверх
+                
+                # Ограничиваем максимальную скорость
                 max_speed = 5
                 speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.5
                 if speed > max_speed:
@@ -424,6 +425,7 @@ class Arkanoid:
                     self.ball_y_speed *= factor
                 
                 self.last_paddle_collision_time = current_time
+
         # Коллизия с блоками
         for block in self.blocks[:]:
             block_coords = (
@@ -577,6 +579,9 @@ class Arkanoid:
 
 
 if __name__ == "__main__":
+    root = tk.Tk()
+    game = Arkanoid(root)
+    root.mainloop()
     root = tk.Tk()
     game = Arkanoid(root)
     root.mainloop()
