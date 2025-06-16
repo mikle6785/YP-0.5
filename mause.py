@@ -269,6 +269,7 @@ class Arkanoid:
         self.lives = 3
         self.score = 0
         self.player_name = "Player"
+        self.last_paddle_collision_time = 0  # Для предотвращения залипания
 
         # Отображение жизней и счета
         self.label_lives = self.canvas.create_text(
@@ -394,13 +395,28 @@ class Arkanoid:
         )
 
     def check_collisions(self):
+        # Получаем текущее время в миллисекундах
+        current_time = self.master.after_idle(lambda: None)  # Просто для получения времени
+        
         # Коллизия с платформой
         paddle_coords = self.canvas.coords(self.paddle)
-        if (self.ball_y + self.ball_size >= paddle_coords[1] and
-                self.ball_y - self.ball_size <= paddle_coords[3] and
-                self.ball_x + self.ball_size >= paddle_coords[0] and
-                self.ball_x - self.ball_size <= paddle_coords[2]):
-            self.ball_y_speed *= -1
+        ball_coords = self.canvas.coords(self.ball)
+        
+        # Улучшенная проверка коллизии с платформой
+        if (ball_coords[3] >= paddle_coords[1] and 
+            ball_coords[1] <= paddle_coords[3] and 
+            ball_coords[2] >= paddle_coords[0] and 
+            ball_coords[0] <= paddle_coords[2]):
+            
+            # Проверяем, чтобы мяч не залипал в платформе
+            if current_time - self.last_paddle_collision_time > 100:  # 100 мс задержки
+                self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантируем отскок вверх
+                self.last_paddle_collision_time = current_time
+                
+                # Добавляем небольшой случайный угол отскока
+                self.ball_x_speed += random.uniform(-1, 1)
+                # Ограничиваем максимальную скорость по X
+                self.ball_x_speed = max(-5, min(5, self.ball_x_speed))
 
         # Коллизия с блоками
         for block in self.blocks[:]:
@@ -408,11 +424,7 @@ class Arkanoid:
                 block['x'], block['y'],
                 block['x'] + block['width'], block['y'] + block['height']
             )
-            ball_coords = (
-                self.ball_x - self.ball_size, self.ball_y - self.ball_size,
-                self.ball_x + self.ball_size, self.ball_y + self.ball_size
-            )
-
+            
             if self.check_rect_collision(ball_coords, block_coords):
                 self.canvas.delete(block['id'])
                 self.blocks.remove(block)
