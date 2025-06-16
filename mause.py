@@ -402,14 +402,16 @@ class Arkanoid:
         paddle_coords = self.canvas.coords(self.paddle)
         ball_coords = self.canvas.coords(self.ball)
         
-        if (ball_coords[3] >= paddle_coords[1] and 
-            ball_coords[1] <= paddle_coords[3] and 
-            ball_coords[2] >= paddle_coords[0] and 
-            ball_coords[0] <= paddle_coords[2]):
+        # Проверяем, находится ли мяч над платформой и движется вниз
+        if (ball_coords[2] > paddle_coords[0] and 
+            ball_coords[0] < paddle_coords[2] and 
+            ball_coords[3] >= paddle_coords[1] and 
+            ball_coords[3] <= paddle_coords[1] + 10 and
+            self.ball_y_speed > 0):  # Мяч движется вниз
             
             # Проверяем временной интервал с момента последнего столкновения
             if current_time - self.last_paddle_collision_time > 100:  # 100 мс задержки
-                # Вычисляем относительное положение удара по платформе
+                # Вычисляем относительное положение удара по платформе (-1..1)
                 hit_pos = (self.ball_x - (self.paddle_x + self.paddle_width/2)) / (self.paddle_width/2)
                 
                 # Меняем направление мяча с учетом места удара
@@ -579,9 +581,6 @@ class Arkanoid:
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    game = Arkanoid(root)
-    root.mainloop()
     root = tk.Tk()
     game = Arkanoid(root)
     root.mainloop()
