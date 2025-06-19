@@ -442,7 +442,7 @@ class Arkanoid:
                 self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантированный отскок вверх
                 
                 # Ограничиваем максимальную скорость
-                max_speed = 5
+                max_speed = 10
                 speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.5
                 if speed > max_speed:
                     factor = max_speed / speed
