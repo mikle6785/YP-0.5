@@ -238,12 +238,12 @@ class Arkanoid:
             fill="white"
         )
 
-        # Параметры мяча
+        # Параметры мяча (увеличена начальная скорость)
         self.ball_size = 10
         self.ball_x = self.canvas_width / 2
         self.ball_y = self.canvas_height / 2
-        self.ball_x_speed = 10 * (1 if random.random() > 10 else -1)
-        self.ball_y_speed = 5
+        self.ball_x_speed = 6 * (1 if random.random() > 0.5 else -1)  # Увеличено в 2 раза
+        self.ball_y_speed = -6  # Увеличено в 2 раза
         self.ball = self.canvas.create_oval(
             self.ball_x - self.ball_size, self.ball_y - self.ball_size,
             self.ball_x + self.ball_size, self.ball_y + self.ball_size,
@@ -397,7 +397,7 @@ class Arkanoid:
             self.level_completed()
             return
 
-        self.master.after(30, self.game_loop)
+        self.master.after(20, self.game_loop)  # Уменьшен интервал для более плавного движения
 
     def move_ball(self):
         if self.game_paused:
@@ -437,17 +437,16 @@ class Arkanoid:
                 # Вычисляем относительное положение удара по платформе (-1..1)
                 hit_pos = (self.ball_x - (self.paddle_x + self.paddle_width/2)) / (self.paddle_width/2)
                 
-                # Меняем направление мяча с учетом места удара
-                self.ball_x_speed = hit_pos * 5  # Максимальный угол отскока
+                # Меняем направление мяча с учетом места удара (без изменения скорости)
+                self.ball_x_speed = hit_pos * 7  # Увеличена скорость отскока
                 self.ball_y_speed = -abs(self.ball_y_speed)  # Гарантированный отскок вверх
                 
-                # Ограничиваем максимальную скорость
-                max_speed = 10
-                speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.9
-                if speed > max_speed:
-                    factor = max_speed / speed
-                    self.ball_x_speed *= factor
-                    self.ball_y_speed *= factor
+                # Сохраняем общую скорость мяча (убираем замедление)
+                speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.5
+                target_speed = 8.5  # Целевая скорость мяча (быстрее оригинальной)
+                factor = target_speed / speed
+                self.ball_x_speed *= factor
+                self.ball_y_speed *= factor
                 
                 self.last_paddle_collision_time = current_time
 
