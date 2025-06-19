@@ -260,6 +260,8 @@ class Arkanoid:
         self.canvas.bind("<Motion>", self.move_paddle_mouse)
         
         # Управление клавишами
+        self.master.bind("<Left>", self.move_paddle_left)
+        self.master.bind("<Right>", self.move_paddle_right)
         self.master.bind("<space>", self.toggle_pause)
         self.master.bind("<p>", self.toggle_pause)
         self.master.bind("<Escape>", self.return_to_menu)
@@ -271,6 +273,7 @@ class Arkanoid:
         self.score = 0
         self.player_name = "Player"
         self.last_paddle_collision_time = 0  # Для предотвращения залипания
+        self.paddle_speed = 15  # Скорость движения платформы при управлении клавиатурой
 
         # Отображение жизней и счета
         self.label_lives = self.canvas.create_text(
@@ -304,6 +307,26 @@ class Arkanoid:
         """Движение платформы за мышью"""
         if self.game_active and not self.game_paused:
             self.paddle_x = max(0, min(event.x - self.paddle_width/2, self.canvas_width - self.paddle_width))
+            self.canvas.coords(
+                self.paddle,
+                self.paddle_x, self.paddle_y,
+                self.paddle_x + self.paddle_width, self.paddle_y + self.paddle_height
+            )
+
+    def move_paddle_left(self, event):
+        """Движение платформы влево по клавише"""
+        if self.game_active and not self.game_paused:
+            self.paddle_x = max(0, self.paddle_x - self.paddle_speed)
+            self.canvas.coords(
+                self.paddle,
+                self.paddle_x, self.paddle_y,
+                self.paddle_x + self.paddle_width, self.paddle_y + self.paddle_height
+            )
+
+    def move_paddle_right(self, event):
+        """Движение платформы вправо по клавише"""
+        if self.game_active and not self.game_paused:
+            self.paddle_x = min(self.canvas_width - self.paddle_width, self.paddle_x + self.paddle_speed)
             self.canvas.coords(
                 self.paddle,
                 self.paddle_x, self.paddle_y,
