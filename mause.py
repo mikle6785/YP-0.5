@@ -242,7 +242,7 @@ class Arkanoid:
         self.ball_size = 10
         self.ball_x = self.canvas_width / 2
         self.ball_y = self.canvas_height / 2
-        self.ball_x_speed = 5 * (1 if random.random() > 3 else -1)
+        self.ball_x_speed = 10 * (1 if random.random() > 10 else -1)
         self.ball_y_speed = -3
         self.ball = self.canvas.create_oval(
             self.ball_x - self.ball_size, self.ball_y - self.ball_size,
