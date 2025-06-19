@@ -443,7 +443,7 @@ class Arkanoid:
                 
                 # Ограничиваем максимальную скорость
                 max_speed = 10
-                speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.5
+                speed = (self.ball_x_speed**2 + self.ball_y_speed**2)**0.9
                 if speed > max_speed:
                     factor = max_speed / speed
                     self.ball_x_speed *= factor
